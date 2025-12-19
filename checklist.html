@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Checklist</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f0f4f8;
+            padding: 15px;
+            border-bottom: 1px solid #e1e5eb;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4b6cb7;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .checklist-container {
+            padding: 20px 30px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e1e5eb;
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 8px 20px;
+            background-color: #f0f4f8;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: #e1e8f0;
+        }
+        
+        .filter-btn.active {
+            background-color: #4b6cb7;
+            color: white;
+        }
+        
+        .document-list {
+            list-style-type: none;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 15px;
+            border-bottom: 1px solid #f0f4f8;
+            transition: all 0.2s ease;
+        }
+        
+        .document-item:hover {
+            background-color: #f9fbfd;
+        }
+        
+        .document-item.completed {
+            opacity: 0.8;
+        }
+        
+        .checkbox-container {
+            position: relative;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        
+        .checkmark {
+            display: block;
+            height: 24px;
+            width: 24px;
+            background-color: #f0f4f8;
+            border-radius: 6px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #4b6cb7;
+        }
+        
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+        
+        .document-info {
+            flex-grow: 1;
+        }
+        
+        .document-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        
+        .document-code {
+            color: #666;
+            font-size: 0.9rem;
+            font-family: monospace;
+            background-color: #f0f4f8;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .status {
+            font-size: 0.9rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        
+        .status.completed {
+            background-color: #e7f4e9;
+            color: #2a8c3e;
+        }
+        
+        .status.pending {
+            background-color: #fff4e5;
+            color: #cc6b00;
+        }
+        
+        .document-item.completed .document-name {
+            text-decoration: line-through;
+            color: #888;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e1e5eb;
+            background-color: #f9fbfd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .instructions {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4b6cb7;
+        }
+        
+        .instructions p {
+            margin-bottom: 5px;
+            color: #444;
+        }
+        
+        .storage-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4b6cb7;
+            font-size: 0.85rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .reset-btn {
+            background-color: #ffeaea;
+            color: #d32f2f;
+        }
+        
+        .reset-btn:hover {
+            background-color: #ffd6d6;
+        }
+        
+        .save-btn {
+            background-color: #e8f4ff;
+            color: #1976d2;
+        }
+        
+        .save-btn:hover {
+            background-color: #d4e9ff;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.error {
+            background-color: #f44336;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 8px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .checklist-container {
+                padding: 15px;
+            }
+            
+            .document-item {
+                padding: 15px 10px;
+                flex-wrap: wrap;
+            }
+            
+            .status {
+                margin-top: 10px;
+            }
+            
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-clipboard-check"></i> Document Checklist</h1>
+            <p class="subtitle">Complete all required documents for onboarding process</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="completed-count">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="pending-count">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">Total Documents</div>
+            </div>
+        </div>
+        
+        <div class="checklist-container">
+            <div class="instructions">
+                <p><i class="fas fa-info-circle"></i> <strong>Auto-save enabled:</strong> Your checklist progress is automatically saved in your browser. Check/uncheck documents as needed and your selections will persist even after closing the page.</p>
+                <p><i class="fas fa-database"></i> <strong>Pre-completed documents:</strong> The following documents were marked as completed initially: 1020, 1021, 1060, 1070, 1201, 1202, and 1204.</p>
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Documents</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <div class="action-buttons">
+                    <button class="action-btn reset-btn" id="resetBtn">
+                        <i class="fas fa-undo-alt"></i> Reset to Default
+                    </button>
+                    <button class="action-btn save-btn" id="saveBtn">
+                        <i class="fas fa-save"></i> Manual Save
+                    </button>
+                </div>
+            </div>
+            
+            <ul class="document-list" id="documentList">
+                <!-- Document items will be generated by JavaScript -->
+            </ul>
+        </div>
+        
+        <footer>
+            <div>
+                <p>Checklist automatically saves your progress. Complete all documents to finish the onboarding process.</p>
+            </div>
+            <div class="storage-info" id="storageInfo">
+                <i class="fas fa-database"></i>
+                <span>Local storage: <span id="storageStatus">Active</span></span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Notification Element -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">Changes saved successfully!</span>
+    </div>
+
+    <script>
+        // Document data - default completed ones pre-checked as specified
+        const defaultDocuments = [
+            { code: "1020", name: "Employment Application", completed: true },
+            { code: "1021", name: "Equal Employment Opportunity Data Form", completed: true },
+            { code: "1050", name: "Skills Checklist", completed: false },
+            { code: "1060", name: "Request for Reference", completed: true },
+            { code: "1070", name: "Background Check Authorization (TX)", completed: true },
+            { code: "1204", name: "Care Associate Availability", completed: true },
+            { code: "1010", name: "Employee Personal Action", completed: false },
+            { code: "1201", name: "Handbook Acknowledgement (TX)", completed: true },
+            { code: "1202", name: "Orientation Acknowledgement", completed: true },
+            { code: "1203", name: "Orientation Curriculum", completed: true },
+            { code: "1220", name: "Abuse/Neglect Policy", completed: true },
+            { code: "1530", name: "Care Associate Schedule Acknowledgement", completed: true },
+            { code: "1600", name: "Emergency Contact Information", completed: true },
+            { code: "1720", name: "Hepatitis B Consent-Declination", completed: false },
+            { code: "1740", name: "Pre-Employment Drug Consent", completed: false },
+            { code: "2900", name: "ID Agreement", completed: false },
+            { code: "4000", name: "Nondisclosure/Noncompete Agreement", completed: false },
+            { code: "I9", name: "I-9", completed: false },
+            { code: "W4", name: "W-4", completed: false }
+        ];
+        
+        // Local storage key
+        const STORAGE_KEY = 'documentChecklistData';
+        
+        // Global documents array
+        let documents = [];
+        
+        // Load documents from local storage or defaults
+        function loadDocumentsFromStorage() {
+            try {
+                const storedData = localStorage.getItem(STORAGE_KEY);
+                if (storedData) {
+                    const parsedData = JSON.parse(storedData);
+                    // Merge stored data with default documents to ensure all items exist
+                    documents = defaultDocuments.map(defaultDoc => {
+                        const storedDoc = parsedData.find(d => d.code === defaultDoc.code);
+                        return storedDoc ? { ...defaultDoc, completed: storedDoc.completed } : defaultDoc;
+                    });
+                    console.log("Loaded documents from local storage");
+                    return true;
+                }
+            } catch (error) {
+                console.error("Error loading from local storage:", error);
+            }
+            
+            // If no stored data or error, use defaults
+            documents = JSON.parse(JSON.stringify(defaultDocuments));
+            return false;
+        }
+        
+        // Save documents to local storage
+        function saveDocumentsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+                console.log("Saved documents to local storage");
+                showNotification("Progress saved successfully!", false);
+                updateStorageStatus(true);
+                return true;
+            } catch (error) {
+                console.error("Error saving to local storage:", error);
+                showNotification("Error saving progress", true);
+                updateStorageStatus(false);
+                return false;
+            }
+        }
+        
+        // Show notification
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.className = 'notification';
+            
+            if (isError) {
+                notification.classList.add('error');
+                notification.querySelector('i').className = 'fas fa-exclamation-triangle';
+            } else {
+                notification.querySelector('i').className = 'fas fa-check-circle';
+            }
+            
+            notification.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Update storage status display
+        function updateStorageStatus(isActive) {
+            const storageStatus = document.getElementById('storageStatus');
+            const storageInfo = document.getElementById('storageInfo');
+            
+            if (isActive) {
+                storageStatus.textContent = 'Active';
+                storageStatus.style.color = '#4CAF50';
+                storageInfo.style.color = '#4CAF50';
+            } else {
+                storageStatus.textContent = 'Not saved';
+                storageStatus.style.color = '#f44336';
+                storageInfo.style.color = '#f44336';
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const completedCount = documents.filter(doc => doc.completed).length;
+            const totalCount = documents.length;
+            const pendingCount = totalCount - completedCount;
+            
+            document.getElementById('completed-count').textContent = completedCount;
+            document.getElementById('pending-count').textContent = pendingCount;
+            document.getElementById('total-count').textContent = totalCount;
+        }
+        
+        // Create a document item element
+        function createDocumentItem(doc) {
+            const listItem = document.createElement('li');
+            listItem.className = `document-item ${doc.completed ? 'completed' : ''}`;
+            listItem.dataset.code = doc.code;
+            
+            listItem.innerHTML = `
+                <div class="checkbox-container">
+                    <input type="checkbox" id="doc-${doc.code}" ${doc.completed ? 'checked' : ''}>
+                    <span class="checkmark"></span>
+                </div>
+                <div class="document-info">
+                    <div class="document-name">${doc.name}</div>
+                    <div class="document-code">${doc.code}</div>
+                </div>
+                <div class="status ${doc.completed ? 'completed' : 'pending'}">
+                    ${doc.completed ? 'Completed' : 'Pending'}
+                </div>
+            `;
+            
+            // Add click event to the entire list item for better UX
+            listItem.addEventListener('click', function(e) {
+                // Don't trigger if clicking on the checkbox itself (it has its own handler)
+                if (e.target.type === 'checkbox' || e.target.classList.contains('checkmark')) {
+                    return;
+                }
+                
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+            });
+            
+            // Add change event to checkbox
+            const checkbox = listItem.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', function() {
+                const docCode = listItem.dataset.code;
+                const docItem = documents.find(d => d.code === docCode);
+                
+                if (docItem) {
+                    docItem.completed = this.checked;
+                    
+                    // Update UI
+                    listItem.classList.toggle('completed', this.checked);
+                    const statusEl = listItem.querySelector('.status');
+                    statusEl.textContent = this.checked ? 'Completed' : 'Pending';
+                    statusEl.className = `status ${this.checked ? 'completed' : 'pending'}`;
+                    
+                    // Auto-save to local storage
+                    saveDocumentsToStorage();
+                    updateStats();
+                }
+            });
+            
+            return listItem;
+        }
+        
+        // Initialize the checklist
+        function initChecklist() {
+            const documentList = document.getElementById('documentList');
+            documentList.innerHTML = '';
+            
+            // Filter documents based on active filter
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            let filteredDocs = documents;
+            
+            if (activeFilter === 'completed') {
+                filteredDocs = documents.filter(doc => doc.completed);
+            } else if (activeFilter === 'pending') {
+                filteredDocs = documents.filter(doc => !doc.completed);
+            }
+            
+            // Create list items for each document
+            filteredDocs.forEach(doc => {
+                const listItem = createDocumentItem(doc);
+                documentList.appendChild(listItem);
+            });
+            
+            updateStats();
+        }
+        
+        // Reset to default state
+        function resetToDefaults() {
+            if (confirm("Are you sure you want to reset the checklist to its default state? This will clear all your changes.")) {
+                documents = JSON.parse(JSON.stringify(defaultDocuments));
+                localStorage.removeItem(STORAGE_KEY);
+                initChecklist();
+                showNotification("Checklist reset to default", false);
+                updateStorageStatus(false);
+            }
+        }
+        
+        // Filter functionality
+        function setupFilterButtons() {
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Re-render the list with the selected filter
+                    initChecklist();
+                });
+            });
+        }
+        
+        // Setup action buttons
+        function setupActionButtons() {
+            document.getElementById('resetBtn').addEventListener('click', resetToDefaults);
+            document.getElementById('saveBtn').addEventListener('click', () => {
+                saveDocumentsToStorage();
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load documents from storage or defaults
+            const loadedFromStorage = loadDocumentsFromStorage();
+            
+            // Set up UI
+            setupFilterButtons();
+            setupActionButtons();
+            initChecklist();
+            
+            // Update storage status
+            updateStorageStatus(loadedFromStorage);
+            
+            // Auto-save when leaving the page
+            window.addEventListener('beforeunload', () => {
+                saveDocumentsToStorage();
+            });
+            
+            // Show welcome message if first load
+            if (!loadedFromStorage) {
+                setTimeout(() => {
+                    showNotification("Welcome! Your progress will be saved automatically.", false);
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    showNotification("Your saved progress has been loaded.", false);
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
